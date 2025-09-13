@@ -82,15 +82,15 @@
 <script>
 let lastCount = null;
 
-// 🚨 REPLACE with your codes
-const PUBLIC_CODE  = "68c57a438f40bb1748378fae"; 
-const PRIVATE_CODE = "5WzXND_V70upBUAQSo9eAAi9MyagN9HEu87qKCkC_ikA"; 
+// 🚨 Replace with your codes from Dreamlo
+const PUBLIC_CODE  = "68c57a438f40bb1748378fae";
+const PRIVATE_CODE = "5WzXND_V70upBUAQSo9eAAi9MyagN9HEu87qKCkC_ikA";
 
 const readURL   = "https://dreamlo.com/lb/" + PUBLIC_CODE + "/pipe";
 const writeURL  = "https://dreamlo.com/lb/" + PRIVATE_CODE + "/add/view/1";
 const proxyBase = "https://api.allorigins.win/get?url=";
 
-// Increment +1 on each visit
+// Add +1 on each visit
 fetch(proxyBase + encodeURIComponent(writeURL))
   .then(() => {
     // after increment, update display
@@ -102,9 +102,11 @@ async function updateCounter() {
   try {
     const res = await fetch(proxyBase + encodeURIComponent(readURL));
     const wrapped = await res.json();
-    const rows = wrapped.contents.trim().split("\n");
 
+    // Dreamlo returns CSV text like: "view,123,0"
+    const rows = wrapped.contents.trim().split("\n");
     let total = 0;
+
     rows.forEach(row => {
       const parts = row.split(",");
       if (parts.length >= 2) {
