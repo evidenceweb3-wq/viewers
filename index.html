@@ -58,6 +58,15 @@
     50% { transform: scale(1.4); opacity: 0.6; }
     100% { transform: scale(1); opacity: 1; }
   }
+
+  .flash {
+    animation: flash 0.3s ease-in-out 5;
+  }
+
+  @keyframes flash {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.8); opacity: 0.3; }
+  }
 </style>
 </head>
 <body>
@@ -66,34 +75,61 @@
   <h1>Total Viewers</h1>
   <div class="counter">
     <span id="counter">0</span>
-    <span class="dot"></span>
+    <span id="dot" class="dot"></span>
   </div>
 </div>
 
 <script>
+let lastCount = null;
+
+// 🚨 REPLACE with your codes
+const PUBLIC_CODE  = "68c57a438f40bb1748378fae"; 
+const PRIVATE_CODE = "5WzXND_V70upBUAQSo9eAAi9MyagN9HEu87qKCkC_ikA"; 
+
+const readURL   = "https://dreamlo.com/lb/" + PUBLIC_CODE + "/pipe";
+const writeURL  = "https://dreamlo.com/lb/" + PRIVATE_CODE + "/add/view/1";
+const proxyBase = "https://api.allorigins.win/get?url=";
+
+// Increment +1 on each visit
+fetch(proxyBase + encodeURIComponent(writeURL))
+  .then(() => {
+    // after increment, update display
+    updateCounter();
+  })
+  .catch(err => console.error("Increment error:", err));
+
 async function updateCounter() {
   try {
-    const pageURL = "https://evidenceweb3-wq.github.io/viewers/";
-    const encodedURL = encodeURIComponent(pageURL);
-
-    // wrap hits.sh with AllOrigins
-    const apiURL = `https://hits.sh/${encodedURL}.json`;
-    const proxyURL = "https://api.allorigins.win/get?url=" + encodeURIComponent(apiURL);
-
-    const res = await fetch(proxyURL);
+    const res = await fetch(proxyBase + encodeURIComponent(readURL));
     const wrapped = await res.json();
-    const data = JSON.parse(wrapped.contents);
+    const rows = wrapped.contents.trim().split("\n");
 
-    document.getElementById("counter").textContent = data.count;
+    let total = 0;
+    rows.forEach(row => {
+      const parts = row.split(",");
+      if (parts.length >= 2) {
+        total += parseInt(parts[1], 10);
+      }
+    });
+
+    const counterEl = document.getElementById("counter");
+    const dotEl = document.getElementById("dot");
+
+    counterEl.textContent = total;
+
+    if (lastCount !== null && total !== lastCount) {
+      dotEl.classList.add("flash");
+      setTimeout(() => dotEl.classList.remove("flash"), 1500);
+    }
+
+    lastCount = total;
   } catch (e) {
-    console.error("Error fetching counter:", e);
+    console.error("Fetch error:", e);
     document.getElementById("counter").textContent = "⚠️";
   }
 }
 
-// initial load
-updateCounter();
-// refresh every 10 seconds
+// refresh every 10s
 setInterval(updateCounter, 10000);
 </script>
 
