@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Total Viewers</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #5b2c98, #1e3a8a);
+    font-family: Arial, sans-serif;
+  }
+
+  .counter-box {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid white;
+    border-radius: 20px;
+    padding: 30px 60px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 0 25px rgba(0,0,0,0.4);
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    font-size: 2em;
+  }
+
+  .counter {
+    font-size: 3em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .dot {
+    width: 15px;
+    height: 15px;
+    background: red;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="counter-box">
+  <h1>Total Viewers</h1>
+  <div class="counter">
+    <span id="counter">0</span>
+    <span class="dot"></span>
+  </div>
+</div>
+
+<script>
+  async function updateCounter() {
+    try {
+      // Encode the exact URL of your GitHub Pages page
+      const url = encodeURIComponent("https://evidenceweb3-wq.github.io/viewers/");
+      const res = await fetch(`https://hits.sh/${url}.json?style=flat`);
+      const data = await res.json();
+      document.getElementById("counter").textContent = data.count;
+    } catch (e) {
+      console.error("Error fetching counter:", e);
+      document.getElementById("counter").textContent = "⚠️";
+    }
+  }
+
+  // Increment and display counter on page load
+  updateCounter();
+</script>
+
+</body>
+</html>
