@@ -57,7 +57,7 @@
     async function updateCounter() {
       try {
         // Replace with your GitHub Pages URL
-        let url = encodeURIComponent("https://yourusername.github.io/yourrepo/");
+        let url = encodeURIComponent("https://evidenceweb3-wq.github.io/viewers/");
         let res = await fetch(`https://hits.sh/${url}.json?style=flat`);
         let data = await res.json();
         document.getElementById("counter").textContent = data.count;
