@@ -82,57 +82,53 @@
 <script>
 let lastCount = null;
 
-// 🚨 Replace with your codes from Dreamlo
-const PUBLIC_CODE  = "68c57a438f40bb1748378fae";
-const PRIVATE_CODE = "5WzXND_V70upBUAQSo9eAAi9MyagN9HEu87qKCkC_ikA";
+// ✅ Default CountAPI namespace and key (you can change later)
+const namespace = "evidenceweb3";
+const key = "viewers";
+const hitURL = `https://api.countapi.xyz/hit/${namespace}/${key}`;
+const getURL = `https://api.countapi.xyz/get/${namespace}/${key}`;
 
-const readURL   = "https://dreamlo.com/lb/" + PUBLIC_CODE + "/pipe";
-const writeURL  = "https://dreamlo.com/lb/" + PRIVATE_CODE + "/add/view/1";
-const proxyBase = "https://api.allorigins.win/get?url=";
+const visitorKey = 'hasCountedView';
 
-// Add +1 on each visit
-fetch(proxyBase + encodeURIComponent(writeURL))
-  .then(() => {
-    // after increment, update display
-    updateCounter();
-  })
-  .catch(err => console.error("Increment error:", err));
-
-async function updateCounter() {
-  try {
-    const res = await fetch(proxyBase + encodeURIComponent(readURL));
-    const wrapped = await res.json();
-
-    // Dreamlo returns CSV text like: "view,123,0"
-    const rows = wrapped.contents.trim().split("\n");
-    let total = 0;
-
-    rows.forEach(row => {
-      const parts = row.split(",");
-      if (parts.length >= 2) {
-        total += parseInt(parts[1], 10);
-      }
-    });
-
-    const counterEl = document.getElementById("counter");
-    const dotEl = document.getElementById("dot");
-
-    counterEl.textContent = total;
-
-    if (lastCount !== null && total !== lastCount) {
-      dotEl.classList.add("flash");
-      setTimeout(() => dotEl.classList.remove("flash"), 1500);
-    }
-
-    lastCount = total;
-  } catch (e) {
-    console.error("Fetch error:", e);
-    document.getElementById("counter").textContent = "⚠️";
-  }
+// Increment +1 only if visitor hasn't been counted
+if (!localStorage.getItem(visitorKey)) {
+  fetch(hitURL)
+    .then(res => res.json())
+    .then(data => {
+      localStorage.setItem(visitorKey, 'true');
+      updateCounterDisplay(data.value);
+    })
+    .catch(err => console.error("Error incrementing counter:", err));
+} else {
+  // fetch current total without increment
+  fetch(getURL)
+    .then(res => res.json())
+    .then(data => updateCounterDisplay(data.value))
+    .catch(err => console.error("Error fetching counter:", err));
 }
 
-// refresh every 10s
-setInterval(updateCounter, 10000);
+// Update counter display & flash
+function updateCounterDisplay(total) {
+  const counterEl = document.getElementById("counter");
+  const dotEl = document.getElementById("dot");
+
+  counterEl.textContent = total;
+
+  if (lastCount !== null && total !== lastCount) {
+    dotEl.classList.add("flash");
+    setTimeout(() => dotEl.classList.remove("flash"), 1500);
+  }
+
+  lastCount = total;
+}
+
+// Refresh every 10s to catch new visitors
+setInterval(() => {
+  fetch(getURL)
+    .then(res => res.json())
+    .then(data => updateCounterDisplay(data.value))
+    .catch(err => console.error("Error fetching counter:", err));
+}, 10000);
 </script>
 
 </body>
